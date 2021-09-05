@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Blonde</title>
+  
+  
+  <link href="http://example.com/atom.xml" rel="self"/>
+  
+  <link href="http://example.com/"/>
+  <updated>2021-09-05T15:29:38.809Z</updated>
+  <id>http://example.com/</id>
+  
+  <author>
+    <name>Blonde</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>KMP</title>
+    <link href="http://example.com/2021/08/30/KMP%E7%AE%97%E6%B3%95/"/>
+    <id>http://example.com/2021/08/30/KMP%E7%AE%97%E6%B3%95/</id>
+    <published>2021-08-30T13:39:15.000Z</published>
+    <updated>2021-09-05T15:29:38.809Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="KMP-算法"><a href="#KMP-算法" class="headerlink" title="KMP 算法"></a>KMP 算法</h2><p>KMP算法是一种字符串匹配算法，可以在O(m+n)的时间复杂度内实现两个字符串的匹配</p><blockquote><p>字符串匹配问题：字符串P 是否为字符串S的子串？</p></blockquote><p> <strong>S 称作主字符串</strong>，<strong>P称作模式字符串</strong></p><p><img src="https://cdn.jsdelivr.net/gh/Blonde-dot/picGo/img/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E9%97%AE%E9%A2%98.png"></p><p><a href="https://www.zhihu.com/question/21923021">https://www.zhihu.com/question/21923021</a></p><p>KMP算法在于<strong>减少两个字符串之间比较的次数</strong>（字符串比较的复杂度是难降低，基本只能逐个比较）</p><p>KMP通过一个为模板字符串 P 维护的next[]数组，这个next[] 数组有一个特点：</p><p><strong>next[x]  =  P[0] - P[x] 这一段字符串中的最长相等前缀后缀子串的长度</strong></p><blockquote><p>假设存在一个子段k（可能是一个字符或多个）</p><p>k的下标处于 0&lt;k&lt;x,   0-k 与 k - x 的子串完全相等，称这两个相等的子串为前缀、后缀</p></blockquote><p>next数组的核心思想在于 模式字符串<strong>P自己与自己做匹配</strong></p><p><strong>使用 next数组的特性可以跳过不可能成功的字符串比较</strong></p><p>next数组的性质：P[0] 到 P[i] 这一段子串中，前next[i]个字符与后next[i]个字符一模一样。</p><p>如果字符失配在 P[r], 那么P[0]~P[r-1]这一段里面，<strong>前next[r-1]个字符恰好和后next[r-1]个字符相等</strong></p><p>也就是说，我们可以拿长度为 next[r-1] 的那一段前缀，来顶替当前后缀的位置，让匹配继续下去</p><p><img src="https://cdn.jsdelivr.net/gh/Blonde-dot/picGo/img/%E4%BD%BF%E7%94%A8next%E6%95%B0%E7%BB%84%E6%AF%94%E8%BE%83%E5%AD%97%E7%AC%A6%E4%B8%B2.png"></p><p>观察这个例子：</p><p>在 S[0] 尝试匹配，失配于 S[3] &lt;=&gt; P[3] 之后，我们直接把模式串往右移了两位，让 S[3] 对准 P[1]. </p><p>接着继续匹配，失配于 S[8] &lt;=&gt; P[6], 接下来我们把 P 往右平移了三位，把 S[8] 对准 P[3]. </p><p>此后继续匹配直到成功</p><p><strong>KMP算法的时间复杂度为 O(M+N)</strong></p><h3 id="next数组的实现"><a href="#next数组的实现" class="headerlink" title="next数组的实现"></a>next数组的实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// j : 前缀末尾指针</span></span><br><span class="line"><span class="comment">// i ：后缀末尾指针，默认指向一个子串的最后一位，用于表示i之前的所有字符形成的子串（包含i）</span></span><br><span class="line"><span class="comment">// P : 模板字符串</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] buildNext(String P)&#123;</span><br><span class="line">    <span class="keyword">int</span>[] next = <span class="keyword">new</span> <span class="keyword">int</span>[P.length];</span><br><span class="line">    <span class="comment">// 初始化,第一个字符的没有相同前后缀</span></span><br><span class="line">    next[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 前缀指针指向第一个元素</span></span><br><span class="line">    <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 后缀指针一开始指向第二个元素</span></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">1</span>; </span><br><span class="line">    <span class="comment">// 以后缀指针遍历整个模板字符串，i以及i之前的所有字符形成一个子串，查找子串的最长相同前缀后缀</span></span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">1</span>;i&lt;P.length;i++)&#123;</span><br><span class="line">        <span class="comment">// 当 i 指向的元素与 j指向的元素不相等时，j回退到next[j-1]的位置，重新进行判断</span></span><br><span class="line">        <span class="keyword">while</span>(j&gt;<span class="number">0</span> &amp;&amp; P[i] != P[j])&#123;</span><br><span class="line">            j = next[j-<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 当 i 指向的元素 与 j指向的元素相等时，j向后移动一位，即前缀后缀相同子串长度加1</span></span><br><span class="line">        <span class="keyword">if</span>(P[i] = P[j])&#123;</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 将 j 添加到 next[i] 中，表示 i与i之前所有字符形成的子串的最长前缀后缀相等长度就为j</span></span><br><span class="line">        next[i] = j;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="主串S与模式串P比较实现"><a href="#主串S与模式串P比较实现" class="headerlink" title="主串S与模式串P比较实现"></a>主串S与模式串P比较实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tar : 主串匹配的位置</span></span><br><span class="line"><span class="comment">// pos : 模式串中匹配的位置</span></span><br><span class="line"><span class="comment">// S ：主串</span></span><br><span class="line"><span class="comment">// P ：模式串</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Search</span><span class="params">(String S,String P)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> tar = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> pos = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span>[] next = <span class="keyword">this</span>.buildNext(P);</span><br><span class="line">    <span class="comment">// 匹配成功，继续向后匹配</span></span><br><span class="line">    <span class="keyword">if</span>(S[tar] == P[pos])&#123;</span><br><span class="line">        tar++;</span><br><span class="line">        pos++;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>( pos != <span class="number">0</span> )&#123; <span class="comment">// 匹配失败且pos不等于0，tar不变，将pos回退到next[pos-1]</span></span><br><span class="line">        pos = next[pos-<span class="number">1</span>];</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123; <span class="comment">// P[0] 与 S[0] 匹配失败，直接将tar右移一位 </span></span><br><span class="line">        tar++；</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(pos == p.length)&#123; <span class="comment">// pos走到了P的末尾，即匹配成功</span></span><br><span class="line">        System.out.print(tar - pos); <span class="comment">// 输出主串上的匹配起点</span></span><br><span class="line">        pos = next[pos-<span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">KMP算法基础</summary>
+    
+    
+    
+    
+    <category term="算法" scheme="http://example.com/tags/%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>my first blog article</title>
+    <link href="http://example.com/2021/08/30/my-first-blog-article/"/>
+    <id>http://example.com/2021/08/30/my-first-blog-article/</id>
+    <published>2021-08-30T12:59:57.000Z</published>
+    <updated>2021-09-05T12:41:52.099Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="My-first-blog"><a href="#My-first-blog" class="headerlink" title="My first blog"></a>My first blog</h1><p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> helloWorld&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.print(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">helloWorld</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://example.com/2021/08/30/hello-world/"/>
+    <id>http://example.com/2021/08/30/hello-world/</id>
+    <published>2021-08-30T12:55:28.289Z</published>
+    <updated>2021-09-05T14:51:33.416Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
