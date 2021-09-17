@@ -2,7 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://example.com/2021/06/21/mvcannotation-driven%E8%A7%A3%E6%9E%90/</loc>
+    <loc>http://example.com/2021/07/01/mvcannotation-driven%E8%A7%A3%E6%9E%90/</loc>
+    
+    <lastmod>2021-09-17</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://example.com/2021/08/22/Java%E9%94%81/</loc>
+    
+    <lastmod>2021-09-17</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://example.com/2021/08/25/Synchronized/</loc>
     
     <lastmod>2021-09-17</lastmod>
     
@@ -52,13 +66,6 @@
   
   <url>
     <loc>http://example.com/2021/07/22/ThreadLocal/</loc>
-    
-    <lastmod>2021-09-17</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/2021/08/22/Java%E9%94%81/</loc>
     
     <lastmod>2021-09-17</lastmod>
     
@@ -124,6 +131,13 @@
   
   <url>
     <loc>http://example.com/tags/Java%E5%B9%B6%E5%8F%91/</loc>
+    <lastmod>2021-09-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/tags/SpringMVC/</loc>
     <lastmod>2021-09-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
